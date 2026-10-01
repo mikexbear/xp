@@ -1,0 +1,6 @@
+subscriptionUrls:
+  - https://example.com/
+probeTimeoutSec: 5
+probeIntervalSec: 300
+subscriptionFetchingIntervalSec: 900
+serverPort: 8080
