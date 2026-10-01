@@ -27,3 +27,18 @@ func NewConfig(raw string) (*Config, error) {
 
 	return &result, nil
 }
+
+func NewConfigs(raw []string) ([]*Config, error) {
+	result := make([]*Config, len(raw))
+
+	for i, r := range raw {
+		cfg, err := NewConfig(r)
+		if err != nil {
+			return nil, err
+		}
+
+		result[i] = cfg
+	}
+
+	return result, nil
+}
