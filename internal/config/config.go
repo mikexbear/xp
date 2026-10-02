@@ -11,6 +11,7 @@ import (
 
 type Config struct {
 	SubscriptionUrls                []Url `yaml:"subscriptionUrls"`
+	ProbeUrls                       []Url `yaml:"probeUrls"`
 	ProbeTimeoutSec                 int   `yaml:"probeTimeoutSec"`
 	ProbeIntervalSec                int   `yaml:"probeIntervalSec"`
 	SubscriptionFetchingIntervalSec int   `yaml:"subscriptionFetchingIntervalSec"`
@@ -20,6 +21,7 @@ type Config struct {
 func Default() *Config {
 	return &Config{
 		SubscriptionUrls:                []Url{},
+		ProbeUrls:                       []Url{},
 		ProbeTimeoutSec:                 5,
 		ProbeIntervalSec:                300,
 		SubscriptionFetchingIntervalSec: 900,
@@ -54,6 +56,10 @@ func Load(path string) (*Config, error) {
 func (c *Config) Validate() error {
 	if len(c.SubscriptionUrls) == 0 {
 		return fmt.Errorf("no subscription URLs configured")
+	}
+
+	if len(c.ProbeUrls) == 0 {
+		return fmt.Errorf("no probe URLs configured")
 	}
 
 	if c.ProbeTimeoutSec <= 0 {

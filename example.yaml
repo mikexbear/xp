@@ -1,5 +1,7 @@
 subscriptionUrls:
   - https://example.com/
+probeUrls:
+  - https://example.com/
 probeTimeoutSec: 5
 probeIntervalSec: 300
 subscriptionFetchingIntervalSec: 900
