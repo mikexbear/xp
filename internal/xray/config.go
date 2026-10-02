@@ -42,3 +42,13 @@ func NewConfigs(raw []string) ([]*Config, error) {
 
 	return result, nil
 }
+
+func (c *Config) GetSocksInbound() *conf.InboundDetourConfig {
+	for _, inbound := range c.InboundConfigs {
+		if inbound.Protocol == "socks" {
+			return &inbound
+		}
+	}
+
+	return nil
+}
