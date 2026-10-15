@@ -2,6 +2,7 @@ package xray
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/xtls/xray-core/infra/conf"
 )
@@ -43,7 +44,26 @@ func NewConfigs(raw []string) ([]*Config, error) {
 	return result, nil
 }
 
-func (c *Config) GetSocksInbound() *conf.InboundDetourConfig {
+func (c *Config) GetSocksInboundHostAndPort() (string, int, error) {
+	socksInbound := c.getSocksInbound()
+	if socksInbound == nil {
+		return "", 0, fmt.Errorf("no SOCKS inbound found in Xray configuration")
+	}
+
+	if socksInbound.PortList == nil || len(socksInbound.PortList.Range) == 0 {
+		return "", 0, fmt.Errorf("SOCKS inbound has no port")
+	}
+	port := socksInbound.PortList.Range[0].From
+
+	host := "127.0.0.1"
+	if socksInbound.ListenOn != nil && socksInbound.ListenOn.String() != "" {
+		host = socksInbound.ListenOn.String()
+	}
+
+	return host, int(port), nil
+}
+
+func (c *Config) getSocksInbound() *conf.InboundDetourConfig {
 	for _, inbound := range c.InboundConfigs {
 		if inbound.Protocol == "socks" {
 			return &inbound

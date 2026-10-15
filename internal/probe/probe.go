@@ -33,36 +33,20 @@ func (p *Prober) ProbeSubscriptions() {
 }
 
 func (p *Prober) probeOneXrayConfig(xrayConfig *xray.Config) {
-	// TODO: move SOCKS listen/port extraction into a method on xray.Config instead of inspecting the inbound here
-
-	socksInbound := xrayConfig.GetSocksInbound()
-	if socksInbound == nil {
-		slog.Error(fmt.Sprintf("No SOCKS inbound found in Xray configuration (remarks: %s)", xrayConfig.Remarks))
-		// TODO: save metrics
-		return
-	}
-
-	if socksInbound.PortList == nil || len(socksInbound.PortList.Range) == 0 {
-		slog.Error(fmt.Sprintf("SOCKS inbound has no port (remarks: %s)", xrayConfig.Remarks))
-		// TODO: save metrics
-		return
-	}
-	port := socksInbound.PortList.Range[0].From
-
-	listen := "127.0.0.1"
-	if socksInbound.ListenOn != nil && socksInbound.ListenOn.String() != "" {
-		listen = socksInbound.ListenOn.String()
-	}
-
-	proxyUrl, err := url.Parse(fmt.Sprintf("socks5://%s:%d", listen, port))
+	host, port, err := xrayConfig.GetSocksInboundHostAndPort()
 	if err != nil {
 		slog.Error(
-			fmt.Sprintf(
-				"Invalid SOCKS inbound (remarks: %s, listen: %s, port: %d)",
-				xrayConfig.Remarks,
-				listen,
-				port,
-			),
+			fmt.Sprintf("Failed to get the host and port of the SOCKS inbound (remarks: %s)", xrayConfig.Remarks),
+			"err", err,
+		)
+		// TODO: save metrics
+		return
+	}
+
+	proxyUrl, err := url.Parse(fmt.Sprintf("socks5://%s:%d", host, port))
+	if err != nil {
+		slog.Error(
+			fmt.Sprintf("Invalid SOCKS inbound (remarks: %s, host: %s, port: %d)", xrayConfig.Remarks, host, port),
 			"err", err,
 		)
 		// TODO: save metrics
